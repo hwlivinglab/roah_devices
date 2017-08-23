@@ -1,5 +1,5 @@
 <launch>
-  <arg name="smartif_host" default="192.168.1.56"/>
+  <arg name="smartif_host" default="192.168.1.4"/>
 
   <node pkg="roah_devices" type="roah_devices" name="roah_devices" respawn="true">
     <param name="smartif_host" type="string" value="$(arg smartif_host)"/>

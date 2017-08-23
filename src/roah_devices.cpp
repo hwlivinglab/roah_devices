@@ -33,8 +33,12 @@
 
 #include "device_ids.h"
 #include "devices_socket.h"
+#include "devices_control.h"
 
-
+#include <diagnostic_msgs/KeyValue.h>
+#include <ros/ros.h>
+#include <ros/console.h>
+#include "std_msgs/String.h"
 
 using namespace std;
 using namespace ros;
@@ -107,6 +111,8 @@ class BoolSwitch
     boost::function<void (int32_t) > setter_;
     boost::mutex state_mutex_;
     bool state_;
+  //  NodeHandle n;
+   // Publisher pub = n.advertise<diagnostic_msgs::KeyValue>("/iot_command", 1, false);
 
     bool set (roah_devices::Bool::Request& req, roah_devices::Bool::Response& res)
     {
@@ -115,7 +121,8 @@ class BoolSwitch
         state_ = req.data;
         setter_ (req.data ? 1 : 0);
       }
-
+      //end edit
+      ROS_ERROR_STREAM("bool set");
       update_();
       return true;
     }
@@ -127,8 +134,23 @@ class BoolSwitch
         state_ = true;
         setter_ (1);
       }
+// //start of edited code - Kyna and Clarissa of MEng Robotics 2017
+//       ROS_ERROR_STREAM("bool on");
+//       NodeHandle n;
+//       Rate loop_rate(10);
+//       diagnostic_msgs::KeyValue msg;
 
-      update_();
+//       msg.key = "Ktch_light";
+//       msg.value = "ON";
+
+//       //sleep(5); //this is necessary for the software to work - do not remove!!!
+//       pub.publish(msg);
+//       //sleep(5); //do not delete
+//       ROS_ERROR_STREAM(msg);
+//       ros::spinOnce();
+//       loop_rate.sleep();
+// //end of edited code
+      update_(); //this method is from a separate library that we do not have access to
       return true;
     }
 
@@ -139,7 +161,23 @@ class BoolSwitch
         state_ = false;
         setter_ (0);
       }
+      // //start of edited code - Kyna and Clarissa of MEng Robotics 2017
+      //       ROS_ERROR_STREAM("bool off");
+      //       NodeHandle n;
+            
+      //       Rate loop_rate(10);
+      //       diagnostic_msgs::KeyValue msg;
 
+      //       msg.key = "Ktch_light";
+      //       msg.value = "OFF";
+
+      //       //sleep(5); //this is necessary for the software to work - do not remove!!!
+      //       pub.publish(msg);
+      //       //sleep(5); //do not delete
+      //       ROS_ERROR_STREAM(msg);
+      //       ros::spinOnce();
+      //       loop_rate.sleep();
+      // //end of edited code
       update_();
       return true;
     }
@@ -278,6 +316,9 @@ class RoahDevices
     boost::thread thread_;
 
     uint8_t command_;
+    NodeHandle n;
+    Publisher pub = n.advertise<diagnostic_msgs::KeyValue>("/iot_command", 1, false);
+
 
     void
     update()
@@ -303,7 +344,48 @@ class RoahDevices
           return;
         }
 
+        ROS_ERROR_STREAM("HERE");
+
+        string switch_no = arg0.c_str();
+
+        stringstream ss(switch_no);
+
+        int x = 0;
+        ss >> x;
+
+        //start of edited code - Kyna and Clarissa of MEng Robotics 2017
+        Rate loop_rate(10);
+        diagnostic_msgs::KeyValue msg;
+      
+        switch(x){
+          case 11: msg.key = "Ktch_light";
+          break;
+          case 33: msg.key = "hw_switch";
+          break;
+          case 40: msg.key = "BhRm_light";
+          break;
+        }
+
+        if(arg1 == 1)
+        {
+          msg.value = "ON";
+          ROS_ERROR_STREAM("Switching it on");
+        }
+        else if (arg1 == 0)
+        {
+          msg.value = "OFF";
+          ROS_ERROR_STREAM("Switching it off");
+        }
+        //sleep(4); //this is necessary for the software to work - do not remove!!!
+        pub.publish(msg);
+        ROS_ERROR_STREAM(msg);
+        ros::spinOnce();
+        loop_rate.sleep();
+
+
+        ROS_ERROR_STREAM(arg0);
         uint32_t arg1_val = arg1 * mul;
+        ROS_ERROR_STREAM(arg1);
         sync_write_byte (socket_, 'I');
         sync_write_string (socket_, arg0);
         sync_write_long (socket_, arg1_val);
@@ -376,8 +458,8 @@ class RoahDevices
     {
       while (ok()) {
         string smartif_host;
-        param::param<string> ("~smartif_host", smartif_host, "192.168.1.56");
-        tcp::endpoint endpoint (ip::address::from_string (smartif_host), 6665);
+        param::param<string> ("~smartif_host", smartif_host, "192.168.1.4");
+        tcp::endpoint endpoint (ip::address::from_string (smartif_host), 6666); //why was this 6665???
         try {
           socket_.connect (endpoint);
           ROS_DEBUG_STREAM ("Connected to " << endpoint);
@@ -453,3 +535,6 @@ int main (int argc, char** argv)
 
   return 0;
 }
+
+
+
