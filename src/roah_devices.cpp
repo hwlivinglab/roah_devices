@@ -353,7 +353,7 @@ class RoahDevices
         int x = 0;
         ss >> x;
 
-        //start of edited code - Kyna and Clarissa of MEng Robotics 2017
+        //start of edited code - Kyna and Clarissa cc531@hw.ac.uk
         Rate loop_rate(10);
         diagnostic_msgs::KeyValue msg;
       
@@ -376,14 +376,12 @@ class RoahDevices
           msg.value = "OFF";
           ROS_ERROR_STREAM("Switching it off");
         }
-        //sleep(4); //this is necessary for the software to work - do not remove!!!
         pub.publish(msg);
         ROS_ERROR_STREAM(msg);
         ros::spinOnce();
         loop_rate.sleep();
+	// end of edited code - Kyna and Clarissa cc531@hw.ac.uk
 
-
-        ROS_ERROR_STREAM(arg0);
         uint32_t arg1_val = arg1 * mul;
         ROS_ERROR_STREAM(arg1);
         sync_write_byte (socket_, 'I');
