@@ -111,8 +111,6 @@ class BoolSwitch
     boost::function<void (int32_t) > setter_;
     boost::mutex state_mutex_;
     bool state_;
-  //  NodeHandle n;
-   // Publisher pub = n.advertise<diagnostic_msgs::KeyValue>("/iot_command", 1, false);
 
     bool set (roah_devices::Bool::Request& req, roah_devices::Bool::Response& res)
     {
@@ -134,22 +132,7 @@ class BoolSwitch
         state_ = true;
         setter_ (1);
       }
-// //start of edited code - Kyna and Clarissa of MEng Robotics 2017
-//       ROS_ERROR_STREAM("bool on");
-//       NodeHandle n;
-//       Rate loop_rate(10);
-//       diagnostic_msgs::KeyValue msg;
 
-//       msg.key = "Ktch_light";
-//       msg.value = "ON";
-
-//       //sleep(5); //this is necessary for the software to work - do not remove!!!
-//       pub.publish(msg);
-//       //sleep(5); //do not delete
-//       ROS_ERROR_STREAM(msg);
-//       ros::spinOnce();
-//       loop_rate.sleep();
-// //end of edited code
       update_(); //this method is from a separate library that we do not have access to
       return true;
     }
@@ -161,23 +144,7 @@ class BoolSwitch
         state_ = false;
         setter_ (0);
       }
-      // //start of edited code - Kyna and Clarissa of MEng Robotics 2017
-      //       ROS_ERROR_STREAM("bool off");
-      //       NodeHandle n;
-            
-      //       Rate loop_rate(10);
-      //       diagnostic_msgs::KeyValue msg;
 
-      //       msg.key = "Ktch_light";
-      //       msg.value = "OFF";
-
-      //       //sleep(5); //this is necessary for the software to work - do not remove!!!
-      //       pub.publish(msg);
-      //       //sleep(5); //do not delete
-      //       ROS_ERROR_STREAM(msg);
-      //       ros::spinOnce();
-      //       loop_rate.sleep();
-      // //end of edited code
       update_();
       return true;
     }
@@ -316,9 +283,11 @@ class RoahDevices
     boost::thread thread_;
 
     uint8_t command_;
+   
+    // edited by Clarissa Cremona cc531@hw.ac.uk
     NodeHandle n;
     Publisher pub = n.advertise<diagnostic_msgs::KeyValue>("/iot_command", 1, false);
-
+    // end of edited code
 
     void
     update()
@@ -344,19 +313,20 @@ class RoahDevices
           return;
         }
 
-        ROS_ERROR_STREAM("HERE");
+        // start of edited code - Kyna and Clarissa cc531@hw.ac.uk
 
-        string switch_no = arg0.c_str();
-
+	// convert arg0 to int
+        string switch_no = arg0.c_str(); 
         stringstream ss(switch_no);
-
         int x = 0;
         ss >> x;
 
-        //start of edited code - Kyna and Clarissa cc531@hw.ac.uk
         Rate loop_rate(10);
+
+	// message type for topic /iot_command
         diagnostic_msgs::KeyValue msg;
       
+	// check device to manipulate
         switch(x){
           case 11: msg.key = "Ktch_light";
           break;
@@ -366,6 +336,7 @@ class RoahDevices
           break;
         }
 
+	// check on/off
         if(arg1 == 1)
         {
           msg.value = "ON";
@@ -376,8 +347,13 @@ class RoahDevices
           msg.value = "OFF";
           ROS_ERROR_STREAM("Switching it off");
         }
+	
+	// publish message to topic /iot_command
         pub.publish(msg);
+
+	// print message to console
         ROS_ERROR_STREAM(msg);
+
         ros::spinOnce();
         loop_rate.sleep();
 	// end of edited code - Kyna and Clarissa cc531@hw.ac.uk
