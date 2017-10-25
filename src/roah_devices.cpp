@@ -55,6 +55,10 @@ class Bell
     boost::function<void () > update_;
     boost::mutex state_mutex_;
     Time state_;
+    //edited by Kyna km362@hw.ac.uk
+    NodeHandle nb; //initalise nodehandle for bell ring
+    Publisher bell_pub = nb.advertise<diagnostic_msgs::KeyValue>("/iot_command", 1, false); //initlaise publisher
+    //end of edit
 
     bool mock (std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
     {
@@ -94,6 +98,21 @@ class Bell
         boost::lock_guard<boost::mutex> _ (state_mutex_);
         state_ = Time::now();
       }
+      //code edit by Kyna km362@hw.ac.uk
+      Rate loop_rate(10);     
+      diagnostic_msgs::KeyValue msg; ///message type for /iot_command topic
+      msg.key = "Hall_Intcm"; //device to change state of - intercom button
+      msg.value = "ON"; //set device state to ON
+      ROS_ERROR_STREAM("Hall_Intcm ON"); //debug
+      bell_pub.publish(msg); //publish message to /iot_command topic
+      ROS_ERROR_STREAM(msg); //print published message to console
+      
+      //gives time for code to be executed before exiting method
+      ros::spinOnce();
+      loop_rate.sleep();
+      
+      //end edit
+      
       ring_pub_.publish (make_shared<std_msgs::Empty>());
 
       update_();
@@ -119,8 +138,7 @@ class BoolSwitch
         state_ = req.data;
         setter_ (req.data ? 1 : 0);
       }
-      //end edit
-      ROS_ERROR_STREAM("bool set");
+      //ROS_ERROR_STREAM("bool set"); //debug
       update_();
       return true;
     }
@@ -313,13 +331,14 @@ class RoahDevices
           return;
         }
 
-        // start of edited code - Kyna and Clarissa cc531@hw.ac.uk
+        // edited by Kyna km362@hw.ac.uk and Clarissa cc531@hw.ac.uk
 
 	// convert arg0 to int
         string switch_no = arg0.c_str(); 
         stringstream ss(switch_no);
         int x = 0;
         ss >> x;
+	ROS_ERROR_STREAM(x); //prints int that relates to case number
 
         Rate loop_rate(10);
 
@@ -332,7 +351,7 @@ class RoahDevices
           break;
           case 33: msg.key = "hw_switch";
           break;
-          case 40: msg.key = "BhRm_light";
+          case 40: msg.key = "Hue_iris_toggle_2";
           break;
         }
 
@@ -340,12 +359,12 @@ class RoahDevices
         if(arg1 == 1)
         {
           msg.value = "ON";
-          ROS_ERROR_STREAM("Switching it on");
+          ROS_ERROR_STREAM("Switching on");
         }
         else if (arg1 == 0)
         {
           msg.value = "OFF";
-          ROS_ERROR_STREAM("Switching it off");
+          ROS_ERROR_STREAM("Switching off");
         }
 	
 	// publish message to topic /iot_command
@@ -356,7 +375,7 @@ class RoahDevices
 
         ros::spinOnce();
         loop_rate.sleep();
-	// end of edited code - Kyna and Clarissa cc531@hw.ac.uk
+	// end edit
 
         uint32_t arg1_val = arg1 * mul;
         ROS_ERROR_STREAM(arg1);
