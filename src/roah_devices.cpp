@@ -103,9 +103,8 @@ class Bell
       diagnostic_msgs::KeyValue msg; ///message type for /iot_command topic
       msg.key = "Hall_Intcm"; //device to change state of - intercom button
       msg.value = "ON"; //set device state to ON
-      ROS_ERROR_STREAM("Hall_Intcm ON"); //debug
       bell_pub.publish(msg); //publish message to /iot_command topic
-      ROS_ERROR_STREAM(msg); //print published message to console
+      //ROS_ERROR_STREAM(msg); //print published message to console
       
       //gives time for code to be executed before exiting method
       ros::spinOnce();
@@ -338,8 +337,9 @@ class RoahDevices
         stringstream ss(switch_no);
         int x = 0;
         ss >> x;
-	ROS_ERROR_STREAM(x); //prints int that relates to case number
-
+	//ROS_ERROR_STREAM(x); //prints int that relates to case number
+        
+        
         Rate loop_rate(10);
 
 	// message type for topic /iot_command
@@ -353,18 +353,27 @@ class RoahDevices
           break;
           case 40: msg.key = "Hue_iris_toggle_2";
           break;
+          case 58: msg.key = "Hue_iris_dimmer_2";
+          break;
+          //case 77: msg.key = "name of blinds device";
+          //break;
         }
 
 	// check on/off
         if(arg1 == 1)
         {
           msg.value = "ON";
-          ROS_ERROR_STREAM("Switching on");
+          //ROS_ERROR_STREAM("Switching on");
         }
         else if (arg1 == 0)
         {
           msg.value = "OFF";
-          ROS_ERROR_STREAM("Switching off");
+          //ROS_ERROR_STREAM("Switching off");
+        }
+        else if (arg1 >= 2)
+        {
+          msg.value = ;
+          ROS_ERROR_STREAM("Dimmer a");
         }
 	
 	// publish message to topic /iot_command
@@ -378,7 +387,7 @@ class RoahDevices
 	// end edit
 
         uint32_t arg1_val = arg1 * mul;
-        ROS_ERROR_STREAM(arg1);
+        ROS_ERROR_STREAM(arg1); 
         sync_write_byte (socket_, 'I');
         sync_write_string (socket_, arg0);
         sync_write_long (socket_, arg1_val);
