@@ -113,11 +113,9 @@ class Bell
       //end edit
       
       ring_pub_.publish (make_shared<std_msgs::Empty>());
-
       update_();
     }
 };
-
 
 
 class BoolSwitch
@@ -339,7 +337,10 @@ class RoahDevices
         ss >> x;
 	//ROS_ERROR_STREAM(x); //prints int that relates to case number
         
-        
+        //convert arg0 (type int32_t which is a vector) to int
+        int a = (int) arg1;
+        ROS_ERROR_STREAM("arg1:" + a);
+
         Rate loop_rate(10);
 
 	// message type for topic /iot_command
@@ -370,12 +371,48 @@ class RoahDevices
           msg.value = "OFF";
           //ROS_ERROR_STREAM("Switching off");
         }
-        else if (arg1 >= 2)
+        else if (arg1 >= 2 && arg1 <= 10)
         {
-          msg.value = ;
-          ROS_ERROR_STREAM("Dimmer a");
+          msg.value = "10";
+          //ROS_ERROR_STREAM("Dimmer");
         }
-	
+	else if (arg1 >= 11 && arg1 <= 20)
+        {
+          msg.value = "20";
+        }
+        else if (arg1 >= 21 && arg1 <= 30)
+        {
+          msg.value = "30";
+        }
+        else if (arg1 >= 31 && arg1 <= 40)
+        {
+          msg.value = "40";
+        }
+        else if (arg1 >= 41 && arg1 <= 50)
+        {
+          msg.value = "50";
+        }
+        else if (arg1 >= 51 && arg1 <= 60)
+        {
+          msg.value = "60";
+        }
+        else if (arg1 >= 61 && arg1 <= 70)
+        {
+          msg.value = "70";
+        }
+        else if (arg1 >= 71 && arg1 <= 80)
+        {
+          msg.value = "80";
+        }
+        else if (arg1 >= 81 && arg1 <= 90)
+        {
+          msg.value = "90";
+        }
+        else if (arg1 >= 91 && arg1 <= 100)
+        {
+          msg.value = "100";
+        }
+
 	// publish message to topic /iot_command
         pub.publish(msg);
 
