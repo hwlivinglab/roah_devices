@@ -336,10 +336,6 @@ class RoahDevices
         int x = 0;
         ss >> x;
 	//ROS_ERROR_STREAM(x); //prints int that relates to case number
-        
-        //convert arg0 (type int32_t which is a vector) to int
-        int a = (int) arg1;
-        ROS_ERROR_STREAM("arg1:" + a);
 
         Rate loop_rate(10);
 
